@@ -48,5 +48,6 @@ def load_json(name: str, cfg: dict):
 
 def save_csv(df: pd.DataFrame, name: str, cfg: dict) -> Path:
     path = cfg["paths"]["metrics_dir"] / name
-    df.to_csv(path, index=False)
+    # 10 decimals: removes last-bit noise from parallel SQL sums, so reruns are byte-identical
+    df.round(10).to_csv(path, index=False)
     return path

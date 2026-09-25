@@ -109,3 +109,55 @@ Sources: `policy_results.json` (incl. `headline`), `swap_set.csv`, `profit_sensi
 ### Decisions
 - Added two things beyond the spec, because an interviewer would ask about them: dollars lent / profit per dollar (a policy can "win" by lending more), and the grade-PD expected-profit policy (to separate the value of the formula from the value of the model).
 - Bootstrap = paired resampling of test loans; each policy re-approves its top 70% of the resampled book.
+
+## Recommended policy changed: M2 PD ranking (decided while building reason codes)
+
+- The expected-profit ranking declines mostly **small, low-risk loans** ($2–5k), because dollar profit scales with loan size. Those declines are not risk-based, so SHAP "risk factor" reason codes would misdescribe them. Adverse-action notices must state the real reasons.
+- `config.yaml → profit.recommended_policy` is now **`m2_pd`**: +$22.5M at 70% approval with the same volume, capital and bad rate, the most robust gain (+$22.1M to +$22.8M in every stress scenario), and every decline is risk-based. The expected-profit ranking stays in all reports as the higher-profit, higher-capital option.
+- Used for: the approved-book forecast, reason codes, the app's "Explain a decision" page and the memo.
+
+## Phase 7 — Loss forecasting ✅
+
+Source: `forecast.json`. Figure: `forecast_vs_actual.png`.
+
+| Whole test book, 8 quarters | Defaults MAPE | Net-loss MAPE |
+|---|---|---|
+| M2 LightGBM | **6.9%** | **9.0%** |
+| Benchmark (2010–12 default rate by grade × quarter's grade mix) | 7.6% | 10.5% |
+| M1 scorecard | 11.3% | 10.5% |
+
+- M2's two-year net-loss total is within ~0.2% of actual ($295.4M vs $294.7M), but the quarterly errors trend. Defaults go from ≈ on target (2014-Q1) to −12% (2015-Q4); dollar losses from +20% (2014-Q1) to −10% (2015-Q4). Drift again, visible only quarter by quarter.
+- **Approved book (M2 PD policy, 70%):** M2 net-loss MAPE 9.5%, defaults under-forecast by 8.6% on average. The grade benchmark *over*-forecasts losses by 32%, because M2 picks the safer loans within each grade. Selecting on a model concentrates its optimism (a selection effect), so monitor the approved book specifically.
+
+## Phase 8 — Monitoring, weak spots, explainability ✅
+
+Sources: `psi.csv`, `csi.csv`, `weak_spots.csv`, `monitoring_summary.json`, `shap_importance.csv`, `reason_codes_examples.csv`. Figures: `psi_by_quarter.png`, `shap_summary.png`.
+
+- **Score PSI** (M2 calibrated PD, train-decile bins; isotonic output has 100 distinct values, so edges are de-duplicated): 0.036 in 2013 → **monitor in 2014-Q4 to 2015-Q2 (max 0.121)** → back under 0.10 in late 2015. It coincides with the forecast under-prediction and needs no outcomes.
+- **CSI:** `acc_open_past_24mths` 3.9 and `bc_util` 1.9 (structural: ~43% missing in train, ~0% later), `fico_mid` 0.25 in 2014-Q4 (action), `purpose` 0.23 and `credit_hist_months` 0.15 (monitor). Missing values get their own bin, so a field that starts being reported counts as drift.
+- **Weak spots:** 13 of 51 segments flagged (|gap| ≥ 2 pp or actual/predicted outside 0.8–1.25, n ≥ 500), all under-predicted. The largest by dollar impact is RENT (+2.5 pp, ≈$21.9M), then Verified income (+2.5 pp, ≈$17.8M) and 5–10 yrs credit history (+2.8 pp).
+- **Early warning:** 0 flagged on 2013 data, but **12 of 12** flagged segments with 2013 data were already under-predicted in the same direction (below the threshold). That motivates the memo's "same-direction two quarters running" trend alert.
+- **SHAP** (TreeExplainer on the monotone LightGBM, 20k test loans; values identical to LightGBM's native `pred_contrib`): top drivers FICO, accounts opened in 24 months, income, loan-to-income, inquiries.
+- **Reason codes:** the top-4 risk-raising SHAP features in plain language with the applicant's value, e.g. "FICO score: 662 · Accounts opened in last 24 months: 7 · Credit inquiries in last 6 months: 2". Five declined examples are in `reason_codes_examples.csv`.
+
+## Phase 9 — Streamlit app ✅
+
+- `app/streamlit_app.py`, six pages (overview, vintage explorer, benchmark, **policy simulator**, drift & weak spots, explain a decision). It reads only `app/data/` (23.3 MB: the whole 445k-loan test book plus metrics and figures), built by `app_data.py`.
+- The app imports `credit_engine.profit`, so the simulator uses the pipeline's exact policy code. Verified with Streamlit's `AppTest`: every page runs without exceptions, and the default setting reproduces the report ($292.9M, +$22.5M vs grade).
+
+## Phase 10 — Reporting ✅
+
+- `report.py` generates `README.md`, `reports/results.md`, `reports/business_memo.md` and `reports/resume_bullets.md` from templates filled with `reports/metrics/`, so no number is hand-typed.
+- `notebooks/credit_decisioning_walkthrough.ipynb`: executed walkthrough of every phase (reads saved results; live SQL cells only when the DuckDB file exists).
+- **Reproducibility:** deleted every generated artifact (DuckDB, models, metrics, figures, app data) and rebuilt from the raw CSV with `python -m credit_engine.run_all` in **5.9 min**. Every JSON was identical; one CSV differed by 1e-12 (parallel-sum order in DuckDB), so CSVs are now rounded to 10 decimals. SHAP beeswarm jitter is now seeded, so reruns are byte-identical.
+- **Not done / needs the user:** deploying to Streamlit Community Cloud needs the user's account (entry point `app/streamlit_app.py`, repo already on GitHub). `make` isn't installed on this Windows machine, so the Makefile targets are untested here; each is a single command that was run directly.
+
+## Definition of done (§7)
+
+- [x] One command runs raw file → reports (`python -m credit_engine.run_all`; `make all` wraps it)
+- [x] All tests pass (51)
+- [x] `model_metrics.json`, `policy_results.json`, `forecast.json`, `psi.csv`, `weak_spots.csv` exist
+- [x] All figures exist in `reports/figures/`
+- [x] README, results.md, business memo and resume bullets are generated from `reports/metrics/`
+- [x] Streamlit app runs locally (`streamlit run app/streamlit_app.py`)
+- [x] PROGRESS.md documents decisions, assumptions and surprises

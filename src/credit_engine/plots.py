@@ -409,7 +409,8 @@ def shap_summary(values: np.ndarray, X: pd.DataFrame, names: list[str], cfg: dic
     cmap = LinearSegmentedColormap.from_list("diverging", [SERIES[0], "#d8d6cf", SERIES[7]])
     plt.figure()
     shap.summary_plot(values, colors.astype(float), feature_names=names, max_display=max_display,
-                      cmap=cmap, show=False, plot_size=(9.5, 6.5), alpha=0.6)
+                      cmap=cmap, show=False, plot_size=(9.5, 6.5), alpha=0.6,
+                      rng=np.random.default_rng(cfg["seed"]))          # seeded dot jitter
     fig = plt.gcf()
     ax = plt.gca()
     ax.set_xlabel("SHAP value: impact on log-odds of default (right = riskier)", color=INK_2)
