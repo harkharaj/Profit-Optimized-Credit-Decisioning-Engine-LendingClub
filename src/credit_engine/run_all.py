@@ -14,7 +14,7 @@ matplotlib.use("Agg")   # render charts to files, no window
 import numpy as np
 import pandas as pd
 
-from . import data, models, plots
+from . import data, models, plots, profit
 from .config import load_config
 from .features import FeatureBuilder, feature_checks
 from .splits import summarize_splits
@@ -63,6 +63,17 @@ def phase_5_models(cfg, df) -> pd.DataFrame:
     return scores
 
 
+def phase_6_profit(cfg, df, scores) -> dict:
+    results = profit.run_profit_analysis(df, scores, cfg)
+    plots.profit_curves(results["test_policy_table"], results["test_profit_max"], cfg)
+    plots.swap_set_bars(results["swap_set"], cfg)
+    h = results["headline"]
+    for pol in ["m2_pd", "m2_profit"]:
+        print(f"  {pol} vs grade at {h['approval_rate']:.0%} approval: "
+              f"{h[pol]['profit_vs_grade'] / 1e6:+.1f}M ({h[pol]['profit_vs_grade_pct']:+.1%})")
+    return results
+
+
 def main():
     cfg = load_config()
     np.random.seed(cfg["seed"])
@@ -78,7 +89,8 @@ def main():
     run("Phase 1: load, clean, population", phase_1_load_and_clean, cfg)
     run("Phase 2: vintage analysis", phase_2_vintages, cfg)
     df = run("Phases 3-4: features, leakage checks, splits", phase_3_4_features_and_splits, cfg)
-    run("Phase 5: models and benchmark", phase_5_models, cfg, df)
+    scores = run("Phase 5: models and benchmark", phase_5_models, cfg, df)
+    run("Phase 6: profit decision layer", phase_6_profit, cfg, df, scores)
 
     print(f"\nDone in {(time.time() - start) / 60:.1f} min. Metrics in reports/metrics/, charts in reports/figures/.")
 

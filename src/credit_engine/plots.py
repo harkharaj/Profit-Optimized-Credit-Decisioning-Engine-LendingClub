@@ -25,7 +25,7 @@ plt.rcParams.update({
     "axes.edgecolor": AXIS, "axes.linewidth": 0.8, "axes.labelcolor": INK_2, "axes.labelsize": 10,
     "axes.titlesize": 12.5, "axes.titleweight": "bold", "axes.titlelocation": "left", "axes.titlepad": 22,
     "axes.titlecolor": INK,
-    "axes.spines.top": False, "axes.spines.right": False,
+    "axes.spines.top": False, "axes.spines.right": False, "axes.axisbelow": True,
     "axes.grid": True, "axes.grid.axis": "y", "grid.color": GRID, "grid.linewidth": 0.8,
     "xtick.color": AXIS, "ytick.color": AXIS, "xtick.labelcolor": INK_2, "ytick.labelcolor": INK_2,
     "lines.linewidth": 2, "lines.solid_capstyle": "round",
@@ -224,3 +224,86 @@ def calibration_panels(deciles: dict, cfg: dict) -> None:
                  x=0.07, ha="left", fontsize=12.5, fontweight="bold", color=INK)
     fig.tight_layout()
     save(fig, "calibration.png", cfg)
+
+
+# ---------------------------------------------------------------------------
+# Phase 6: profit policies
+# ---------------------------------------------------------------------------
+
+POLICY_COLORS = {"grade": BENCHMARK, "m1_pd": SERIES[0], "m2_pd": SERIES[1],
+                 "m2_profit": SERIES[2], "b0_profit": SERIES[3]}
+
+
+def profit_curves(policy_table: pd.DataFrame, profit_max: dict, cfg: dict) -> None:
+    """Total realized profit and return per dollar lent, by approval rate (test set)."""
+    approve_all = policy_table[policy_table["policy_key"] == "all"].iloc[0]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.5, 5.2))
+    for key, color in POLICY_COLORS.items():
+        rows = policy_table[policy_table["policy_key"] == key].sort_values("target_rate")
+        x = list(rows["target_rate"]) + [1.0]            # at 100% every policy = LC's whole book
+        width = 2.6 if key == "m2_profit" else 1.8
+        ax1.plot(x, list(rows["total_profit"] / 1e6) + [approve_all["total_profit"] / 1e6],
+                 color=color, linewidth=width, label=rows["policy"].iloc[0])
+        ax2.plot(x, list(rows["return_on_funded"]) + [approve_all["return_on_funded"]], color=color, linewidth=width)
+
+    pm = profit_max["profit_max_policy"]
+    ax1.scatter([pm["approval_rate"]], [pm["total_profit"] / 1e6], marker="D", s=46, color=INK,
+                edgecolor=SURFACE, linewidth=1.5, zorder=5)
+    ax1.annotate(f"Profit-max rule: approve if E[profit] > 0\n→ approves {pm['approval_rate']:.1%} of the book",
+                 (pm["approval_rate"], pm["total_profit"] / 1e6), xytext=(0.985, 0.30), textcoords="axes fraction",
+                 ha="right", fontsize=8.5, color=INK_2,
+                 arrowprops=dict(arrowstyle="-", color=MUTED, linewidth=0.8, shrinkB=4))
+
+    ax1.yaxis.set_major_formatter(mtick.StrMethodFormatter("${x:,.0f}M"))
+    ax1.set_ylabel("Total realized profit")
+    ax1.set_title("Total profit", fontsize=10.5, pad=8)
+    ax2.set_title("Profit per dollar lent", fontsize=10.5, pad=8)
+    ax2.set_ylabel("Realized profit / funded amount")
+    _pct_axis(ax2, decimals=1)
+    for ax in (ax1, ax2):
+        ax.set_xlabel("Approval rate (share of LendingClub's accepted book)")
+        _pct_axis(ax, "x")
+    ax1.legend(loc="upper left")
+    fig.suptitle("Every model-based policy earns more total profit than the grade policy (test 2014–15)",
+                 x=0.06, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+    fig.tight_layout()
+    save(fig, "profit_curve.png", cfg)
+
+
+def swap_set_bars(swaps: pd.DataFrame, cfg: dict) -> None:
+    """Loans the model and the grade policy disagree on, at the headline approval rate."""
+    swaps = swaps[swaps["group"].str.startswith("swap")]
+    comparisons = list(dict.fromkeys(swaps["comparison"]))
+    panels = [("bad_rate", "Default rate", "pct"), ("avg_int_rate", "Average interest rate", "rate"),
+              ("profit_per_loan", "Realized profit per loan", "usd")]
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.6))
+    x, width = np.arange(len(comparisons)), 0.36
+    groups = [("swap-in", "Swap-ins: model approves, grade declines", SERIES[2]),
+              ("swap-out", "Swap-outs: grade approves, model declines", BENCHMARK)]
+    for ax, (col, title, kind) in zip(axes, panels):
+        for i, (prefix, label, color) in enumerate(groups):
+            vals = [swaps[(swaps["comparison"] == c) & swaps["group"].str.startswith(prefix)][col].iloc[0]
+                    for c in comparisons]
+            bars = ax.bar(x + (i - 0.5) * (width + 0.02), vals, width, color=color, label=label)
+            for bar, v in zip(bars, vals):
+                text = f"{v:.1%}" if kind == "pct" else f"{v:.1f}%" if kind == "rate" else f"${v:,.0f}"
+                ax.annotate(text, (bar.get_x() + bar.get_width() / 2, bar.get_height()), xytext=(0, 3),
+                            textcoords="offset points", ha="center", fontsize=8.5, color=INK_2)
+        ax.set_xticks(x, [c.replace(" vs grade policy", "\nvs grade policy") for c in comparisons], fontsize=9)
+        ax.set_title(title, fontsize=10.5, pad=8)
+        ax.tick_params(axis="x", length=0)
+        if kind == "pct":
+            _pct_axis(ax)
+        elif kind == "usd":
+            ax.yaxis.set_major_formatter(mtick.StrMethodFormatter("${x:,.0f}"))
+        else:
+            ax.yaxis.set_major_locator(mtick.MultipleLocator(5))
+            ax.yaxis.set_major_formatter(mtick.StrMethodFormatter("{x:.0f}%"))
+        ax.margins(y=0.12)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.055, 0.93), ncol=2, fontsize=9)
+    rate = cfg["profit"]["swap_set_approval_rate"]
+    fig.suptitle(f"Swap sets at {rate:.0%} approval: the model trades cheap loans for better-paying ones",
+                 x=0.06, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+    fig.tight_layout(rect=(0, 0, 1, 0.9))
+    save(fig, "swap_set.png", cfg)

@@ -73,3 +73,39 @@ Sources: `model_metrics.json`, `scorecard.csv`, `scorecard_feature_selection.csv
 ### Engineering notes
 - LightGBM's C++ `save_model` can't write to this folder on Windows (non-ASCII "—" in the path); the model text is written through Python instead.
 - The paired bootstrap re-weights one sorted order instead of re-sorting 445k scores 1,000 times (`evaluation._WeightedAUC`); a test checks it against scikit-learn, including ties.
+
+## Phase 6 — Profit decision layer ✅ (checkpoint)
+
+Sources: `policy_results.json` (incl. `headline`), `swap_set.csv`, `profit_sensitivity.csv`. Figures: `profit_curve.png`, `swap_set.png`.
+
+**Economics (train only):** net return on a repaid loan `r_good` rises from 8.8% (grade A) to 31.5% (G); net loss on a defaulted loan `L` is ~39–44% of the funded amount for every grade (F and G fall back to the overall mean: < 100 defaults). Break-even PD = r / (r + L), so ~17% for grade A and ~32% for grade C.
+
+**Test 2014–15 at 70% approval** (keep 70% of LC's accepted book):
+
+| Policy | Profit | vs grade | Dollars lent | Bad rate | Profit per $ lent |
+|---|---|---|---|---|---|
+| Grade policy (existing) | $270.4M | – | $4.07B | 10.5% | 6.65% |
+| M1 scorecard PD | $293.1M | +8.4% | $4.20B | 11.0% | 6.97% |
+| M2 LightGBM PD | $292.9M | **+8.3%** | $4.06B | 10.5% | **7.22%** |
+| M2 expected profit | $315.4M | **+16.6%** | $4.71B | 14.4% | 6.70% |
+| Grade-PD expected profit (decomposition) | $314.5M | +16.3% | $4.96B | 15.1% | 6.34% |
+| Approve all (LC's whole book) | $360.2M | | $5.67B | 14.5% | 6.36% |
+
+- **Two different sources of gain:**
+  1. **Better risk ranking (M2 PD policy): +$22.5M, 95% CI [$20.1M, $24.7M]**, with the same number of loans, the same dollars lent (−0.3%) and the same bad rate. This is the clean "our model adds value" result.
+  2. **Ranking by expected dollar profit: +$44.9M, 95% CI [$41.7M, $47.9M]** (spec's headline policy). But it lends 16% more dollars (bigger, higher-rate loans), and the same formula with the *grade-based* PD gets +$44.0M. So most of this gain comes from the profit-aware decision rule, not from M2. M2's PD adds only +$0.9M on top at the base case.
+- **Swap sets (70%):**
+  - *M2 PD vs grade:* 56,187 loans swapped each way. **Both groups default at the same ~18.4%**, but the loans M2 takes pay 15.7% interest vs 11.4% → $961 vs $562 profit per loan. The swap-outs are 58% grade A/B: loans LC priced as safe that defaulted like riskier ones, which M2 flagged (mean PD 21%).
+  - *M2 expected profit vs grade:* 101,393 swapped each way. Swap-ins are riskier (23.4% vs 11.4% default) but pay 16.3% vs 9.3%, and larger → $828 vs $385 profit per loan. Lowest risk ≠ highest profit.
+- **Model-based policies beat the grade policy on total profit at every approval rate** (50–90%). On profit per dollar lent, the M2 PD policy is best everywhere (7.4% at 50% approval vs 6.6% for grade).
+- **Profit-max rule (approve if E[profit] > 0):** approves **98.7%** of the test book (99.6% of validation). Its gain over the grade policy at the same approval rate is tiny (+$0.2M). Under this simplified profit (no funding cost or time value), nearly every loan LC accepted was worth making at its price, so a pure profit-maximizer barely tightens. Tightening only pays when volume or capital is constrained, which is where the ranking results above matter.
+- **Sensitivity (loss × 0.8/1.0/1.2, cost $0/50/100):**
+  - M2 expected profit beats the grade policy in **all 9 scenarios** (+$26.1M to +$66.5M).
+  - The M2 PD gain is **stable at +$22.1–22.8M** in every scenario.
+  - Fixed cost doesn't change differences at a fixed approval rate (every policy approves the same count).
+  - When losses are 20% *lower*, the grade-PD profit ranking edges out M2 (−$0.9M); when losses are 20% *higher*, M2's better PDs matter more (+$5.2M over grade-PD ranking).
+- **Framing:** only LC-accepted loans are observed, so every policy is a tightening of LC's book; "approval rate" = share of LC's accepted book.
+
+### Decisions
+- Added two things beyond the spec, because an interviewer would ask about them: dollars lent / profit per dollar (a policy can "win" by lending more), and the grade-PD expected-profit policy (to separate the value of the formula from the value of the model).
+- Bootstrap = paired resampling of test loans; each policy re-approves its top 70% of the resampled book.
