@@ -1,0 +1,35 @@
+{
+  "spearman_int_rate_vs_default_rate_by_subgrade": 0.985994,
+  "lifetime_default_rate_by_issue_year": [
+    {
+      "issue_year": 2010,
+      "default_rate": 0.099457,
+      "avg_int_rate": 11.088032
+    },
+    {
+      "issue_year": 2011,
+      "default_rate": 0.106305,
+      "avg_int_rate": 10.553735
+    },
+    {
+      "issue_year": 2012,
+      "default_rate": 0.135795,
+      "avg_int_rate": 12.626371
+    },
+    {
+      "issue_year": 2013,
+      "default_rate": 0.12326,
+      "avg_int_rate": 13.367044
+    },
+    {
+      "issue_year": 2014,
+      "default_rate": 0.137264,
+      "avg_int_rate": 12.465359
+    },
+    {
+      "issue_year": 2015,
+      "default_rate": 0.148836,
+      "avg_int_rate": 11.274999
+    }
+  ]
+}

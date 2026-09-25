@@ -33,19 +33,23 @@ features:
 
 scorecard:
   max_bins: 10
-  min_bin_share: 0.05
+  min_bin_share: 0.05                # numeric bins hold >= 5% of loans
+  min_category_share: 0.01          # categorical levels below 1% share one "Rare levels" bin
   min_iv: 0.02
   max_woe_corr: 0.70
   c_grid: [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0]
   base_score: 600                   # 600 points ...
   base_odds: 50                     # ... at 50:1 good:bad odds
   pdo: 20                           # points to double the odds
-  monotone_features: [fico_mid, dti, revol_util, inq_last_6mths, annual_inc]
+  monotone_features: [fico_mid, dti, revol_util, inq_last_6mths, log_annual_inc]
 
 lightgbm:
   optuna_trials: 40
   early_stopping_rounds: 100
   max_boost_rounds: 3000
+  # production M2 = the monotone-constrained model unless it costs more than this much
+  # VALIDATION AUC (constraints make PD move the way credit policy expects)
+  max_monotone_auc_cost: 0.002
   # direction of the monotone-constraint experiment (+1 = PD rises with the feature)
   monotone_constraints:
     fico_mid: -1

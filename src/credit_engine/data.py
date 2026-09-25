@@ -12,7 +12,7 @@ import pandas as pd
 from .config import PROJECT_ROOT
 from .features import CORE_RAW_COLUMNS, OPTIONAL_BUREAU_COLUMNS
 from .splits import split_case_sql
-from .utils import save_json
+from .utils import save_csv, save_json
 
 SQL_DIR = PROJECT_ROOT / "sql"
 TERMINAL_STATUSES = ("Fully Paid", "Charged Off", "Default")
@@ -195,3 +195,50 @@ def data_summary(cfg: dict) -> dict:
     ]
     save_json(summary, "data_summary.json", cfg)
     return summary
+
+
+# ---------------------------------------------------------------------------
+# Phase 2: vintage analysis -> reports/metrics/vintage_*.csv
+# ---------------------------------------------------------------------------
+
+def vintage_analysis(cfg: dict) -> dict[str, pd.DataFrame]:
+    """Run 03_vintage.sql and export its three tables."""
+    with connect(cfg) as con:
+        run_sql_file(con, "03_vintage.sql")
+    tables = {
+        "by_grade": load_table(cfg, "vintage_by_grade"),
+        "pricing": load_table(cfg, "pricing_by_subgrade"),
+        "cum_default": load_table(cfg, "vintage_cum_default"),
+    }
+    for name, df in tables.items():
+        save_csv(df, f"vintage_{name}.csv", cfg)
+
+    pricing = tables["pricing"]
+    by_year = query(cfg, """
+        SELECT year(issue_date) AS issue_year, AVG(target) AS default_rate, AVG(int_rate) AS avg_int_rate
+        FROM loans_clean GROUP BY 1 ORDER BY 1""")
+    save_json({
+        # rank correlation between price and realized risk across sub-grades (1 = perfectly risk-priced)
+        "spearman_int_rate_vs_default_rate_by_subgrade":
+            pricing[["avg_int_rate", "default_rate"]].corr(method="spearman").iloc[0, 1],
+        "lifetime_default_rate_by_issue_year": by_year,
+    }, "vintage_summary.json", cfg)
+    return tables
+
+
+# ---------------------------------------------------------------------------
+# Phases 3-4: modeling table
+# ---------------------------------------------------------------------------
+
+def build_model_base(cfg: dict) -> None:
+    with connect(cfg) as con:
+        run_sql_file(con, "04_features.sql", never=cfg["features"]["never_fill_value"])
+
+
+def load_model_base(cfg: dict) -> pd.DataFrame:
+    """model_base as a DataFrame, with each loan tagged train / valid / test."""
+    from .splits import assign_split
+
+    df = load_table(cfg, "model_base")
+    df["split"] = assign_split(df["issue_date"], cfg)
+    return df.sort_values(["issue_date", "id"]).reset_index(drop=True)

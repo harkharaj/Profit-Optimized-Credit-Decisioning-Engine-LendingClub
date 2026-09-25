@@ -1,0 +1,20 @@
+{
+  "train": {
+    "n_loans": 66037,
+    "default_rate": 0.124839,
+    "first_issue": "2010-01-01",
+    "last_issue": "2012-12-01"
+  },
+  "valid": {
+    "n_loans": 100422,
+    "default_rate": 0.12326,
+    "first_issue": "2013-01-01",
+    "last_issue": "2013-12-01"
+  },
+  "test": {
+    "n_loans": 445357,
+    "default_rate": 0.144612,
+    "first_issue": "2014-01-01",
+    "last_issue": "2015-12-01"
+  }
+}

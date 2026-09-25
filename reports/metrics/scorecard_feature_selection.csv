@@ -1,0 +1,31 @@
+feature,iv,selected,drop_reason
+fico_mid,0.1885134413389928,True,
+log_annual_inc,0.08301039596381839,True,
+revol_util,0.06163702130119279,True,
+acc_open_past_24mths,0.049426350580809866,True,
+loan_to_income,0.045611152217593307,True,
+bc_util,0.04536357537789927,True,
+percent_bc_gt_75,0.0431726797119355,False,|corr| 0.84 with bc_util (higher IV)
+purpose,0.042119465126991155,True,
+inq_last_6mths,0.034325417209366056,True,
+mort_acc,0.03296518155243677,False,wrong sign in multivariate fit
+dti,0.03048781797143353,False,wrong sign in multivariate fit
+home_ownership,0.021017420711896315,True,
+open_to_total_acc,0.018662554468129967,False,IV < 0.02
+revol_bal_to_income,0.015209233950068178,False,IV < 0.02
+credit_hist_months,0.012987320958635938,False,IV < 0.02
+emp_length_years,0.011511787881971498,False,IV < 0.02
+revol_bal,0.010655694495386229,False,IV < 0.02
+total_acc,0.010084600034297439,False,IV < 0.02
+loan_amnt,0.00472550089912181,False,IV < 0.02
+mths_since_last_delinq,0.003097261795982813,False,IV < 0.02
+open_acc,0.002603301230500814,False,IV < 0.02
+never_delinquent,0.002433182625735573,False,IV < 0.02
+verification_status,0.0023764704999353213,False,IV < 0.02
+delinq_2yrs,0.0020691447856785077,False,IV < 0.02
+no_public_record,0.0,False,IV < 0.02
+pub_rec_bankruptcies,0.0,False,IV < 0.02
+emp_length_missing,0.0,False,IV < 0.02
+mths_since_last_record,0.0,False,IV < 0.02
+pub_rec,0.0,False,IV < 0.02
+collections_12_mths_ex_med,0.0,False,IV < 0.02

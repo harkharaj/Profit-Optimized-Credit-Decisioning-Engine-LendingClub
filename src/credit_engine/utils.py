@@ -19,6 +19,10 @@ def _to_jsonable(obj):
         return [_to_jsonable(v) for v in obj]
     if isinstance(obj, pd.DataFrame):
         return _to_jsonable(obj.to_dict(orient="records"))
+    if isinstance(obj, pd.Series):
+        return _to_jsonable(obj.to_dict())
+    if isinstance(obj, np.ndarray):
+        return _to_jsonable(obj.tolist())
     if isinstance(obj, (np.integer,)):
         return int(obj)
     if isinstance(obj, (np.floating, float)):
