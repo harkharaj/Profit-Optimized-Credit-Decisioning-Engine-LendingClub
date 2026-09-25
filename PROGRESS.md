@@ -26,8 +26,8 @@ Source: `reports/metrics/data_summary.json`.
 - Cleaning is split in two: `01_load.sql` only parses/casts (cached, slow), `02_clean.sql` applies the population rules (fast, always re-run so config edits take effect).
 - `application_type` and `home_ownership` are upper-cased and `purpose` lower-cased at load time so later comparisons are simple.
 
-### Open issues
-- Git identity is the global work account; the user may want a personal email for this CV repo.
+### Resolved
+- Repo uses a local git identity (personal account), not the global work one; pushed to GitHub.
 
 ## Phase 2 — Vintage analysis ✅
 
@@ -68,7 +68,7 @@ Sources: `model_metrics.json`, `scorecard.csv`, `scorecard_feature_selection.csv
 - **Monotone-constraint experiment:** constraining `fico_mid` (−), `dti` (+), `inq_last_6mths` (+), `revol_util` (+) *gained* 0.0005 validation AUC (0.6684 → 0.6689). Rule set in config: keep the constrained model unless it costs > 0.002 validation AUC → **production M2 is monotone**. Decision taken on validation only.
 - **Scorecard:** 30 candidates → 12 pass IV ≥ 0.02 → `percent_bc_gt_75` dropped (|corr| 0.84 with `bc_util`) → `mort_acc` and `dti` dropped for **wrong-sign coefficients** (their effect flips once `loan_to_income`/`revol_util` and the shared-missingness bureau fields are in). **9 features** in the final scorecard; validation AUC is flat across C (best C = 10). Points: 600 at 50:1, PDO 20.
 - **Calibration choice** (5-fold CV Brier within validation): isotonic for B0 and M2, Platt for M1. The two methods differ by < 0.0001 Brier, so the choice barely matters.
-- **LightGBM:** Optuna picked a very regularized model (8 leaves, 522 min child samples, lr 0.018, ~1,100 trees), consistent with a weak, noisy signal. Top gain features: `fico_mid`, `log_annual_inc`, `loan_to_income`, `purpose`, `revol_util`.
+- **LightGBM:** Optuna picked a very regularized model (8 leaves, 522 min child samples, lr 0.018, 1,100 trees), consistent with a weak, noisy signal. Top gain features: `fico_mid`, `log_annual_inc`, `loan_to_income`, `purpose`, `acc_open_past_24mths`.
 
 ### Engineering notes
 - LightGBM's C++ `save_model` can't write to this folder on Windows (non-ASCII "—" in the path); the model text is written through Python instead.
