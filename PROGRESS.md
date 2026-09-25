@@ -55,7 +55,7 @@ Sources: `model_metrics.json`, `scorecard.csv`, `scorecard_feature_selection.csv
 
 | Test 2014–15 | AUC | Gini | KS | Top-decile capture | Brier (calibrated) |
 |---|---|---|---|---|---|
-| B0 LC sub-grade | 0.671 | 0.343 | 0.252 | 19.5% | 0.1193 |
+| B0 LC sub-grade | 0.671 | 0.342 | 0.252 | 19.5% | 0.1193 |
 | B0 LC int_rate | 0.668 | 0.335 | 0.246 | 19.4% | – |
 | M1 WoE scorecard | 0.653 | 0.306 | 0.221 | 19.1% | 0.1196 |
 | M2 LightGBM (monotone) | 0.670 | 0.340 | 0.245 | 20.0% | 0.1183 |

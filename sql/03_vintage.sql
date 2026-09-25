@@ -19,7 +19,7 @@ CREATE OR REPLACE TABLE pricing_by_subgrade AS
 SELECT sub_grade,
        grade,
        COUNT(*)          AS n_loans,
-       AVG(int_rate)     AS avg_int_rate,
+       AVG(int_rate::DECIMAL(6, 2)) AS avg_int_rate,   -- exact decimal sum: same result on every run
        AVG(target)       AS default_rate
 FROM loans_clean
 GROUP BY 1, 2

@@ -323,7 +323,7 @@ pip install -r requirements.txt
 pip install -e .
 # data: kaggle datasets download -d wordsforthewise/lending-club -p data/raw --unzip
 #   (or place accepted_2007_to_2018Q4.csv.gz in data/raw/ manually)
-python -m credit_engine.run_all        # raw file -> every metric, chart and report (~10 min)
+python -m credit_engine.run_all        # raw file -> every metric, chart and report (~6 min on a laptop)
 python -m pytest                       # tests
 streamlit run app/streamlit_app.py     # policy simulator
 ```

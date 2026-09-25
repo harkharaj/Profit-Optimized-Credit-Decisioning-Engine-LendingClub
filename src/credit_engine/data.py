@@ -215,7 +215,7 @@ def vintage_analysis(cfg: dict) -> dict[str, pd.DataFrame]:
 
     pricing = tables["pricing"]
     by_year = query(cfg, """
-        SELECT year(issue_date) AS issue_year, AVG(target) AS default_rate, AVG(int_rate) AS avg_int_rate
+        SELECT year(issue_date) AS issue_year, AVG(target) AS default_rate, AVG(int_rate::DECIMAL(6, 2)) AS avg_int_rate
         FROM loans_clean GROUP BY 1 ORDER BY 1""")
     save_json({
         # rank correlation between price and realized risk across sub-grades (1 = perfectly risk-priced)
