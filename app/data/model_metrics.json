@@ -1,0 +1,707 @@
+{
+  "model_names": {
+    "B0": "LC sub-grade (existing system)",
+    "B0_int_rate": "LC interest rate",
+    "M1": "WoE scorecard",
+    "M2": "LightGBM"
+  },
+  "models": {
+    "B0": {
+      "valid": {
+        "auc": 0.649049,
+        "gini": 0.298098,
+        "ks": 0.219025,
+        "top_decile_capture": 0.179108,
+        "default_rate": 0.12326,
+        "n": 100422,
+        "brier_raw": 0.105269,
+        "brier_calibrated": 0.104956,
+        "mean_predicted_pd": 0.12326
+      },
+      "test": {
+        "auc": 0.671242,
+        "gini": 0.342484,
+        "ks": 0.252182,
+        "top_decile_capture": 0.194755,
+        "default_rate": 0.144612,
+        "n": 445357,
+        "brier_raw": 0.119047,
+        "brier_calibrated": 0.11927,
+        "mean_predicted_pd": 0.12027
+      }
+    },
+    "B0_int_rate": {
+      "valid": {
+        "auc": 0.649216,
+        "gini": 0.298432,
+        "ks": 0.219167,
+        "top_decile_capture": 0.178219,
+        "default_rate": 0.12326,
+        "n": 100422
+      },
+      "test": {
+        "auc": 0.667542,
+        "gini": 0.335083,
+        "ks": 0.246297,
+        "top_decile_capture": 0.193948,
+        "default_rate": 0.144612,
+        "n": 445357
+      }
+    },
+    "M1": {
+      "valid": {
+        "auc": 0.652351,
+        "gini": 0.304702,
+        "ks": 0.220773,
+        "top_decile_capture": 0.190903,
+        "default_rate": 0.12326,
+        "n": 100422,
+        "brier_raw": 0.104944,
+        "brier_calibrated": 0.104644,
+        "mean_predicted_pd": 0.123262
+      },
+      "test": {
+        "auc": 0.65322,
+        "gini": 0.306439,
+        "ks": 0.221216,
+        "top_decile_capture": 0.190733,
+        "default_rate": 0.144612,
+        "n": 445357,
+        "brier_raw": 0.119194,
+        "brier_calibrated": 0.119591,
+        "mean_predicted_pd": 0.125192
+      }
+    },
+    "M2": {
+      "valid": {
+        "auc": 0.668873,
+        "gini": 0.337747,
+        "ks": 0.243588,
+        "top_decile_capture": 0.204233,
+        "default_rate": 0.12326,
+        "n": 100422,
+        "brier_raw": 0.10412,
+        "brier_calibrated": 0.103721,
+        "mean_predicted_pd": 0.12326
+      },
+      "test": {
+        "auc": 0.669904,
+        "gini": 0.339809,
+        "ks": 0.245219,
+        "top_decile_capture": 0.199817,
+        "default_rate": 0.144612,
+        "n": 445357,
+        "brier_raw": 0.118333,
+        "brier_calibrated": 0.118321,
+        "mean_predicted_pd": 0.133051
+      }
+    }
+  },
+  "decile_tables": {
+    "valid": {
+      "B0": [
+        {
+          "decile": 1,
+          "n": 10043,
+          "predicted_pd": 0.034417,
+          "actual_rate": 0.033357
+        },
+        {
+          "decile": 2,
+          "n": 10042,
+          "predicted_pd": 0.067496,
+          "actual_rate": 0.068114
+        },
+        {
+          "decile": 3,
+          "n": 10042,
+          "predicted_pd": 0.081056,
+          "actual_rate": 0.08345
+        },
+        {
+          "decile": 4,
+          "n": 10042,
+          "predicted_pd": 0.091575,
+          "actual_rate": 0.090221
+        },
+        {
+          "decile": 5,
+          "n": 10042,
+          "predicted_pd": 0.107309,
+          "actual_rate": 0.107548
+        },
+        {
+          "decile": 6,
+          "n": 10042,
+          "predicted_pd": 0.126566,
+          "actual_rate": 0.125075
+        },
+        {
+          "decile": 7,
+          "n": 10042,
+          "predicted_pd": 0.140872,
+          "actual_rate": 0.142501
+        },
+        {
+          "decile": 8,
+          "n": 10042,
+          "predicted_pd": 0.176959,
+          "actual_rate": 0.177355
+        },
+        {
+          "decile": 9,
+          "n": 10042,
+          "predicted_pd": 0.193283,
+          "actual_rate": 0.194384
+        },
+        {
+          "decile": 10,
+          "n": 10043,
+          "predicted_pd": 0.213066,
+          "actual_rate": 0.210594
+        }
+      ],
+      "M1": [
+        {
+          "decile": 1,
+          "n": 10043,
+          "predicted_pd": 0.040503,
+          "actual_rate": 0.035248
+        },
+        {
+          "decile": 2,
+          "n": 10042,
+          "predicted_pd": 0.063588,
+          "actual_rate": 0.063334
+        },
+        {
+          "decile": 3,
+          "n": 10042,
+          "predicted_pd": 0.079158,
+          "actual_rate": 0.079566
+        },
+        {
+          "decile": 4,
+          "n": 10042,
+          "predicted_pd": 0.093187,
+          "actual_rate": 0.094204
+        },
+        {
+          "decile": 5,
+          "n": 10042,
+          "predicted_pd": 0.107238,
+          "actual_rate": 0.108146
+        },
+        {
+          "decile": 6,
+          "n": 10042,
+          "predicted_pd": 0.121885,
+          "actual_rate": 0.125971
+        },
+        {
+          "decile": 7,
+          "n": 10042,
+          "predicted_pd": 0.13827,
+          "actual_rate": 0.139116
+        },
+        {
+          "decile": 8,
+          "n": 10042,
+          "predicted_pd": 0.158148,
+          "actual_rate": 0.163015
+        },
+        {
+          "decile": 9,
+          "n": 10042,
+          "predicted_pd": 0.185591,
+          "actual_rate": 0.188707
+        },
+        {
+          "decile": 10,
+          "n": 10043,
+          "predicted_pd": 0.245049,
+          "actual_rate": 0.235288
+        }
+      ],
+      "M2": [
+        {
+          "decile": 1,
+          "n": 10043,
+          "predicted_pd": 0.031909,
+          "actual_rate": 0.031963
+        },
+        {
+          "decile": 2,
+          "n": 10042,
+          "predicted_pd": 0.054136,
+          "actual_rate": 0.055069
+        },
+        {
+          "decile": 3,
+          "n": 10042,
+          "predicted_pd": 0.071696,
+          "actual_rate": 0.071301
+        },
+        {
+          "decile": 4,
+          "n": 10042,
+          "predicted_pd": 0.087104,
+          "actual_rate": 0.085342
+        },
+        {
+          "decile": 5,
+          "n": 10042,
+          "predicted_pd": 0.108247,
+          "actual_rate": 0.108544
+        },
+        {
+          "decile": 6,
+          "n": 10042,
+          "predicted_pd": 0.124517,
+          "actual_rate": 0.125573
+        },
+        {
+          "decile": 7,
+          "n": 10042,
+          "predicted_pd": 0.142488,
+          "actual_rate": 0.142103
+        },
+        {
+          "decile": 8,
+          "n": 10042,
+          "predicted_pd": 0.164098,
+          "actual_rate": 0.166102
+        },
+        {
+          "decile": 9,
+          "n": 10042,
+          "predicted_pd": 0.194702,
+          "actual_rate": 0.19289
+        },
+        {
+          "decile": 10,
+          "n": 10043,
+          "predicted_pd": 0.253698,
+          "actual_rate": 0.253709
+        }
+      ]
+    },
+    "test": {
+      "B0": [
+        {
+          "decile": 1,
+          "n": 44536,
+          "predicted_pd": 0.028442,
+          "actual_rate": 0.037026
+        },
+        {
+          "decile": 2,
+          "n": 44536,
+          "predicted_pd": 0.054922,
+          "actual_rate": 0.063971
+        },
+        {
+          "decile": 3,
+          "n": 44535,
+          "predicted_pd": 0.075118,
+          "actual_rate": 0.085461
+        },
+        {
+          "decile": 4,
+          "n": 44536,
+          "predicted_pd": 0.086988,
+          "actual_rate": 0.102412
+        },
+        {
+          "decile": 5,
+          "n": 44536,
+          "predicted_pd": 0.10791,
+          "actual_rate": 0.122844
+        },
+        {
+          "decile": 6,
+          "n": 44535,
+          "predicted_pd": 0.130054,
+          "actual_rate": 0.151387
+        },
+        {
+          "decile": 7,
+          "n": 44536,
+          "predicted_pd": 0.140557,
+          "actual_rate": 0.172198
+        },
+        {
+          "decile": 8,
+          "n": 44535,
+          "predicted_pd": 0.17414,
+          "actual_rate": 0.205479
+        },
+        {
+          "decile": 9,
+          "n": 44536,
+          "predicted_pd": 0.191233,
+          "actual_rate": 0.230892
+        },
+        {
+          "decile": 10,
+          "n": 44536,
+          "predicted_pd": 0.213336,
+          "actual_rate": 0.274452
+        }
+      ],
+      "M1": [
+        {
+          "decile": 1,
+          "n": 44536,
+          "predicted_pd": 0.039242,
+          "actual_rate": 0.043717
+        },
+        {
+          "decile": 2,
+          "n": 44536,
+          "predicted_pd": 0.062134,
+          "actual_rate": 0.07504
+        },
+        {
+          "decile": 3,
+          "n": 44535,
+          "predicted_pd": 0.078203,
+          "actual_rate": 0.093634
+        },
+        {
+          "decile": 4,
+          "n": 44536,
+          "predicted_pd": 0.092935,
+          "actual_rate": 0.112673
+        },
+        {
+          "decile": 5,
+          "n": 44536,
+          "predicted_pd": 0.107763,
+          "actual_rate": 0.126325
+        },
+        {
+          "decile": 6,
+          "n": 44535,
+          "predicted_pd": 0.123547,
+          "actual_rate": 0.145301
+        },
+        {
+          "decile": 7,
+          "n": 44536,
+          "predicted_pd": 0.1412,
+          "actual_rate": 0.170604
+        },
+        {
+          "decile": 8,
+          "n": 44535,
+          "predicted_pd": 0.162537,
+          "actual_rate": 0.187268
+        },
+        {
+          "decile": 9,
+          "n": 44536,
+          "predicted_pd": 0.191457,
+          "actual_rate": 0.215736
+        },
+        {
+          "decile": 10,
+          "n": 44536,
+          "predicted_pd": 0.2529,
+          "actual_rate": 0.275822
+        }
+      ],
+      "M2": [
+        {
+          "decile": 1,
+          "n": 44536,
+          "predicted_pd": 0.032916,
+          "actual_rate": 0.03651
+        },
+        {
+          "decile": 2,
+          "n": 44536,
+          "predicted_pd": 0.055468,
+          "actual_rate": 0.06534
+        },
+        {
+          "decile": 3,
+          "n": 44535,
+          "predicted_pd": 0.074944,
+          "actual_rate": 0.086314
+        },
+        {
+          "decile": 4,
+          "n": 44536,
+          "predicted_pd": 0.095661,
+          "actual_rate": 0.107082
+        },
+        {
+          "decile": 5,
+          "n": 44536,
+          "predicted_pd": 0.117371,
+          "actual_rate": 0.125966
+        },
+        {
+          "decile": 6,
+          "n": 44535,
+          "predicted_pd": 0.131805,
+          "actual_rate": 0.14611
+        },
+        {
+          "decile": 7,
+          "n": 44536,
+          "predicted_pd": 0.15538,
+          "actual_rate": 0.170536
+        },
+        {
+          "decile": 8,
+          "n": 44535,
+          "predicted_pd": 0.178556,
+          "actual_rate": 0.191086
+        },
+        {
+          "decile": 9,
+          "n": 44536,
+          "predicted_pd": 0.214375,
+          "actual_rate": 0.227726
+        },
+        {
+          "decile": 10,
+          "n": 44536,
+          "predicted_pd": 0.274029,
+          "actual_rate": 0.289451
+        }
+      ]
+    }
+  },
+  "bootstrap_test": {
+    "M1_minus_B0": {
+      "auc_diff": -0.018022,
+      "ci_low": -0.020064,
+      "ci_high": -0.016031,
+      "share_resamples_diff_le_0": 1.0,
+      "n_resamples": 1000
+    },
+    "M2_minus_B0": {
+      "auc_diff": -0.001338,
+      "ci_low": -0.003426,
+      "ci_high": 0.000647,
+      "share_resamples_diff_le_0": 0.899,
+      "n_resamples": 1000
+    }
+  },
+  "monotone_experiment": {
+    "constraints": {
+      "fico_mid": -1,
+      "dti": 1,
+      "inq_last_6mths": 1,
+      "revol_util": 1
+    },
+    "valid_auc_unconstrained": 0.668354,
+    "valid_auc_monotone": 0.668873,
+    "valid_auc_cost": -0.00052,
+    "test_auc_unconstrained": 0.669499,
+    "test_auc_monotone": 0.669904,
+    "max_allowed_cost": 0.002,
+    "production_m2": "monotone"
+  },
+  "calibration": {
+    "B0": {
+      "method": "isotonic",
+      "cv_brier_valid": {
+        "isotonic": 0.105016,
+        "platt": 0.105044
+      }
+    },
+    "M1": {
+      "method": "platt",
+      "cv_brier_valid": {
+        "isotonic": 0.104686,
+        "platt": 0.104651
+      }
+    },
+    "M2": {
+      "method": "isotonic",
+      "cv_brier_valid": {
+        "isotonic": 0.103871,
+        "platt": 0.10388
+      }
+    }
+  },
+  "lightgbm": {
+    "best_params": {
+      "learning_rate": 0.018134,
+      "num_leaves": 8,
+      "min_child_samples": 522,
+      "feature_fraction": 0.586713,
+      "bagging_fraction": 0.658887,
+      "lambda_l2": 0.019852
+    },
+    "best_iteration": 1100,
+    "n_trials": 40,
+    "best_valid_auc": 0.668354,
+    "feature_importance_gain": {
+      "fico_mid": 0.200908,
+      "log_annual_inc": 0.099844,
+      "loan_to_income": 0.087169,
+      "purpose": 0.083507,
+      "acc_open_past_24mths": 0.063847,
+      "revol_util": 0.048941,
+      "bc_util": 0.048123,
+      "revol_bal_to_income": 0.045818,
+      "inq_last_6mths": 0.045502,
+      "revol_bal": 0.038915,
+      "credit_hist_months": 0.034842,
+      "loan_amnt": 0.031662,
+      "open_to_total_acc": 0.031626,
+      "emp_length_years": 0.024472,
+      "total_acc": 0.020381,
+      "mths_since_last_delinq": 0.017985,
+      "percent_bc_gt_75": 0.015705,
+      "mort_acc": 0.012484,
+      "open_acc": 0.011797,
+      "dti": 0.009729,
+      "home_ownership": 0.007273,
+      "verification_status": 0.006103,
+      "emp_length_missing": 0.004384,
+      "never_delinquent": 0.003354,
+      "mths_since_last_record": 0.002867,
+      "pub_rec": 0.001039,
+      "delinq_2yrs": 0.000949,
+      "pub_rec_bankruptcies": 0.000584,
+      "no_public_record": 0.00019,
+      "collections_12_mths_ex_med": 0.0
+    }
+  },
+  "scorecard": {
+    "n_candidate_features": 30,
+    "n_selected_features": 9,
+    "selected_features": [
+      "fico_mid",
+      "log_annual_inc",
+      "revol_util",
+      "acc_open_past_24mths",
+      "loan_to_income",
+      "bc_util",
+      "purpose",
+      "inq_last_6mths",
+      "home_ownership"
+    ],
+    "best_C": 10.0,
+    "c_search": [
+      {
+        "C": 0.001,
+        "valid_auc": 0.641716
+      },
+      {
+        "C": 0.003,
+        "valid_auc": 0.648048
+      },
+      {
+        "C": 0.01,
+        "valid_auc": 0.651356
+      },
+      {
+        "C": 0.03,
+        "valid_auc": 0.652131
+      },
+      {
+        "C": 0.1,
+        "valid_auc": 0.652332
+      },
+      {
+        "C": 0.3,
+        "valid_auc": 0.652347
+      },
+      {
+        "C": 1.0,
+        "valid_auc": 0.652351
+      },
+      {
+        "C": 3.0,
+        "valid_auc": 0.65235
+      },
+      {
+        "C": 10.0,
+        "valid_auc": 0.652351
+      }
+    ],
+    "wrong_sign_coefficients": []
+  },
+  "features": {
+    "n_features": 30,
+    "features": [
+      "loan_amnt",
+      "emp_length_years",
+      "emp_length_missing",
+      "log_annual_inc",
+      "dti",
+      "delinq_2yrs",
+      "inq_last_6mths",
+      "pub_rec",
+      "pub_rec_bankruptcies",
+      "fico_mid",
+      "mths_since_last_delinq",
+      "never_delinquent",
+      "mths_since_last_record",
+      "no_public_record",
+      "open_acc",
+      "total_acc",
+      "mort_acc",
+      "revol_bal",
+      "revol_util",
+      "credit_hist_months",
+      "loan_to_income",
+      "revol_bal_to_income",
+      "open_to_total_acc",
+      "bc_util",
+      "acc_open_past_24mths",
+      "percent_bc_gt_75",
+      "collections_12_mths_ex_med",
+      "home_ownership",
+      "verification_status",
+      "purpose"
+    ],
+    "caps_from_train": {
+      "annual_inc": 279820.0,
+      "dti": 33.8182
+    },
+    "bureau_missing_rate_train": {
+      "tot_cur_bal": 0.683208,
+      "total_rev_hi_lim": 0.683208,
+      "bc_util": 0.439753,
+      "avg_cur_bal": 0.683208,
+      "acc_open_past_24mths": 0.432969,
+      "num_tl_op_past_12m": 0.683208,
+      "percent_bc_gt_75": 0.439405,
+      "tot_coll_amt": 0.683208,
+      "collections_12_mths_ex_med": 0.0
+    },
+    "bureau_kept": [
+      "bc_util",
+      "acc_open_past_24mths",
+      "percent_bc_gt_75",
+      "collections_12_mths_ex_med"
+    ],
+    "bureau_dropped": [
+      "tot_cur_bal",
+      "total_rev_hi_lim",
+      "avg_cur_bal",
+      "num_tl_op_past_12m",
+      "tot_coll_amt"
+    ],
+    "purpose_levels": [
+      "car",
+      "credit_card",
+      "debt_consolidation",
+      "home_improvement",
+      "major_purchase",
+      "medical",
+      "moving",
+      "other",
+      "small_business",
+      "wedding"
+    ]
+  }
+}

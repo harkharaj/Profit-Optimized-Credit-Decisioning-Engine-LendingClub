@@ -307,3 +307,112 @@ def swap_set_bars(swaps: pd.DataFrame, cfg: dict) -> None:
                  x=0.06, ha="left", fontsize=12.5, fontweight="bold", color=INK)
     fig.tight_layout(rect=(0, 0, 1, 0.9))
     save(fig, "swap_set.png", cfg)
+
+
+# ---------------------------------------------------------------------------
+# Phase 7: forecasting
+# ---------------------------------------------------------------------------
+
+FORECAST_COLORS = {"M1": SERIES[0], "M2": SERIES[1], "Benchmark": BENCHMARK}
+FORECAST_LABELS = {"M1": "M1 scorecard forecast", "M2": "M2 LightGBM forecast",
+                   "Benchmark": "Benchmark: 2010–12 default rate by grade"}
+
+
+def forecast_vs_actual(by_quarter: pd.DataFrame, cfg: dict) -> None:
+    """Whole test book: forecast vs actual default rate and net loss, by issue quarter."""
+    quarters = list(dict.fromkeys(by_quarter["quarter"]))
+    x = np.arange(len(quarters))
+    actual = by_quarter.drop_duplicates("quarter").set_index("quarter").loc[quarters]
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12.5, 5))
+    for ax, act_col, fc_col, scale in [(ax1, "actual_default_rate", "forecast_default_rate", 1),
+                                       (ax2, "actual_loss_usd", "forecast_loss_usd", 1e6)]:
+        for name, color in FORECAST_COLORS.items():
+            g = by_quarter[by_quarter["forecaster"] == name].set_index("quarter").loc[quarters]
+            ax.plot(x, g[fc_col] / scale, color=color, linewidth=1.8, label=FORECAST_LABELS[name])
+        ax.plot(x, actual[act_col] / scale, color=INK, linewidth=2.4, marker="o", markersize=5,
+                markeredgecolor=SURFACE, markeredgewidth=1.2, label="Actual")
+        ax.set_xticks(x, quarters, fontsize=9)
+        ax.set_xlabel("Issue quarter (test period)")
+    _pct_axis(ax1, decimals=1)
+    ax1.set_ylabel("Default rate")
+    ax1.set_title("Default rate: forecasts fall behind as 2015 worsens", fontsize=10.5, pad=8)
+    ax2.yaxis.set_major_formatter(mtick.StrMethodFormatter("${x:,.0f}M"))
+    ax2.set_ylabel("Net loss on defaulted loans")
+    ax2.set_title("Net loss ($): over-forecast in 2014, under-forecast in 2015", fontsize=10.5, pad=8)
+    ax1.legend(loc="upper left", fontsize=8.5)
+    fig.suptitle("Expected-loss forecast vs actual, whole test book (calibrated on 2013)",
+                 x=0.06, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+    fig.tight_layout()
+    save(fig, "forecast_vs_actual.png", cfg)
+
+
+# ---------------------------------------------------------------------------
+# Phase 8: monitoring and explainability
+# ---------------------------------------------------------------------------
+
+STATUS_COLORS = {"stable": GOOD, "monitor": "#fab219", "action": CRITICAL}
+STATUS_LABELS = {"stable": "Stable (< 0.10)", "monitor": "Monitor (0.10–0.25)", "action": "Action (> 0.25)"}
+
+
+def psi_by_quarter(psi: pd.DataFrame, csi: pd.DataFrame, cfg: dict, cap: float = 1.0) -> None:
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5), gridspec_kw={"width_ratios": [1.1, 1]})
+
+    x = np.arange(len(psi))
+    ax1.bar(x, psi["psi"], width=0.62, color=psi["status"].map(STATUS_COLORS))
+    for xi, v in zip(x, psi["psi"]):
+        ax1.annotate(f"{v:.3f}", (xi, v), xytext=(0, 3), textcoords="offset points", ha="center", fontsize=8.5, color=INK_2)
+    for level in (0.10, 0.25):
+        ax1.axhline(level, color=MUTED, linewidth=0.8)
+        ax1.annotate(f"{level:.2f}", (len(psi) - 0.5, level), xytext=(2, 2), textcoords="offset points",
+                     fontsize=8, color=MUTED)
+    ax1.set_xticks(x, psi["period"], fontsize=8.5, rotation=0)
+    ax1.set_ylim(0, 0.28)
+    ax1.set_ylabel("PSI vs training distribution")
+    ax1.set_title("Score drift (PSI of M2 PD) by period", fontsize=10.5, pad=8)
+
+    worst = (csi[csi["period"] != "valid 2013"].groupby("variable")["psi"].max().sort_values())
+    y = np.arange(len(worst))
+    status = worst.map(lambda v: "stable" if v < 0.10 else "monitor" if v <= 0.25 else "action")
+    ax2.barh(y, worst.clip(upper=cap), height=0.62, color=status.map(STATUS_COLORS))
+    for yi, v in zip(y, worst):
+        label = f"{v:.2f}" + ("  (bar capped)" if v > cap else "")
+        ax2.annotate(label, (min(v, cap), yi), xytext=(3, 0), textcoords="offset points", va="center",
+                     fontsize=8.5, color=INK_2)
+    ax2.set_yticks(y, worst.index, fontsize=9)
+    ax2.set_xlim(0, cap * 1.3)
+    ax2.grid(axis="x")
+    ax2.grid(axis="y", visible=False)
+    ax2.set_xlabel("Worst CSI across 2014–15 quarters")
+    ax2.set_title("Feature drift (CSI), top-15 model features", fontsize=10.5, pad=8)
+
+    handles = [plt.Rectangle((0, 0), 1, 1, color=STATUS_COLORS[s]) for s in STATUS_COLORS]
+    fig.legend(handles, STATUS_LABELS.values(), loc="upper left", bbox_to_anchor=(0.055, 0.935), ncol=3, fontsize=9)
+    fig.suptitle("Drift monitoring: the score drifts into 'monitor' in late 2014; two bureau fields changed completely",
+                 x=0.055, ha="left", fontsize=12.5, fontweight="bold", color=INK)
+    fig.tight_layout(rect=(0, 0, 1, 0.9))
+    save(fig, "psi_by_quarter.png", cfg)
+
+
+def shap_summary(values: np.ndarray, X: pd.DataFrame, names: list[str], cfg: dict, max_display: int = 15) -> None:
+    """SHAP beeswarm with the project's blue (low value) <-> red (high value) diverging colors."""
+    import warnings
+
+    import shap
+    from matplotlib.colors import LinearSegmentedColormap
+
+    warnings.filterwarnings("ignore", message="All-NaN slice")   # gray (NaN) colors for categoricals
+
+    colors = X.copy()
+    for col in colors.columns:                    # categories have no low/high: drawn gray
+        if isinstance(colors[col].dtype, pd.CategoricalDtype):
+            colors[col] = np.nan
+    cmap = LinearSegmentedColormap.from_list("diverging", [SERIES[0], "#d8d6cf", SERIES[7]])
+    plt.figure()
+    shap.summary_plot(values, colors.astype(float), feature_names=names, max_display=max_display,
+                      cmap=cmap, show=False, plot_size=(9.5, 6.5), alpha=0.6)
+    fig = plt.gcf()
+    ax = plt.gca()
+    ax.set_xlabel("SHAP value: impact on log-odds of default (right = riskier)", color=INK_2)
+    ax.set_title("What drives M2's predictions (20,000 test loans)", loc="left", fontsize=12.5,
+                 fontweight="bold", color=INK, pad=12)
+    save(fig, "shap_summary.png", cfg)

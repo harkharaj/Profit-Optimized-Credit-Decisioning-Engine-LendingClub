@@ -14,7 +14,7 @@ matplotlib.use("Agg")   # render charts to files, no window
 import numpy as np
 import pandas as pd
 
-from . import data, models, plots, profit
+from . import app_data, data, explain, forecasting, models, monitoring, plots, profit
 from .config import load_config
 from .features import FeatureBuilder, feature_checks
 from .splits import summarize_splits
@@ -74,6 +74,31 @@ def phase_6_profit(cfg, df, scores) -> dict:
     return results
 
 
+def phase_7_forecast(cfg, df, scores):
+    results = forecasting.run_forecast(df, scores, cfg)
+    plots.forecast_vs_actual(results["whole_book"]["by_quarter"], cfg)
+    for name, s in results["whole_book"]["summary"].items():
+        print(f"  {name:9s} MAPE defaults {s['defaults_mape_pct']:.1f}%, net loss {s['loss_mape_pct']:.1f}%")
+
+
+def phase_8_monitoring(cfg, df, scores):
+    policy_frame, _ = profit.prepare_policy_frame(df, scores, cfg)
+    builder, _ = explain.load_m2(cfg)
+    importance = load_json("model_metrics.json", cfg)["lightgbm"]["feature_importance_gain"]
+    top = list(importance)[: cfg["monitoring"]["csi_top_features"]]
+    result = monitoring.run_monitoring(policy_frame, builder.transform(policy_frame), top, cfg)
+    plots.psi_by_quarter(result["psi"], result["csi"], cfg)
+    explain.run_explain(policy_frame, cfg)
+    s = result["summary"]
+    print(f"  max score PSI in test {s['score_psi_max_test_quarter']:.3f}; "
+          f"{s['n_segments_flagged']} of {s['n_segments_checked']} segments flagged")
+
+
+def phase_9_app_data(cfg, df, scores):
+    info = app_data.build_app_data(df, scores, cfg)
+    print(f"  app/data: {info['n_book_rows']:,} test loans, {info['app_data_mb']:.1f} MB")
+
+
 def main():
     cfg = load_config()
     np.random.seed(cfg["seed"])
@@ -91,6 +116,9 @@ def main():
     df = run("Phases 3-4: features, leakage checks, splits", phase_3_4_features_and_splits, cfg)
     scores = run("Phase 5: models and benchmark", phase_5_models, cfg, df)
     run("Phase 6: profit decision layer", phase_6_profit, cfg, df, scores)
+    run("Phase 7: loss forecasting", phase_7_forecast, cfg, df, scores)
+    run("Phase 8: monitoring, weak spots, explainability", phase_8_monitoring, cfg, df, scores)
+    run("Phase 9: app data", phase_9_app_data, cfg, df, scores)
 
     print(f"\nDone in {(time.time() - start) / 60:.1f} min. Metrics in reports/metrics/, charts in reports/figures/.")
 

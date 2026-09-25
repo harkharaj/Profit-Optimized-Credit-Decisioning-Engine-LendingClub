@@ -142,7 +142,7 @@ def swap_set(df: pd.DataFrame, model_ok: np.ndarray, grade_ok: np.ndarray) -> pd
     return pd.DataFrame(rows)
 
 
-def _stressed(df: pd.DataFrame, loss_mult: float, cost: float) -> tuple[pd.DataFrame, np.ndarray]:
+def stress_scenario(df: pd.DataFrame, loss_mult: float, cost: float) -> tuple[pd.DataFrame, np.ndarray]:
     """Scenario where losses on defaults are loss_mult x worse and every loan costs `cost`.
 
     The stress hits both the decision (expected profit) and the outcome (realized profit).
@@ -163,7 +163,7 @@ def sensitivity(test: pd.DataFrame, cfg: dict, seed: int) -> pd.DataFrame:
     rows = []
     for mult in p["loss_rate_multipliers"]:
         for cost in p["fixed_costs"]:
-            scenario, real = _stressed(test, mult, cost)
+            scenario, real = stress_scenario(test, mult, cost)
             profits = {pol: book_metrics(approve_top(policy_order(scenario, pol, seed), rate),
                                          real, target, funded)["total_profit"]
                        for pol in POLICY_NAMES}
@@ -224,16 +224,31 @@ def _headline(results: dict, rate: float) -> dict:
     return out
 
 
-def run_profit_analysis(df: pd.DataFrame, scores: pd.DataFrame, cfg: dict) -> dict:
-    p, seed = cfg["profit"], cfg["seed"]
+def prepare_policy_frame(df: pd.DataFrame, scores: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, dict]:
+    """One row per loan with scores, realized profit, r_good / L and expected profit.
+
+    Shared by the profit, forecasting and monitoring phases and the app.
+    """
+    p = cfg["profit"]
     data = df.merge(scores.drop(columns="split"), on="id")
     data["realized_profit"] = realized_profit(data["total_pymnt"], data["funded_amnt"], p["servicing_fee"])
-
     econ = estimate_economics(data[data["split"] == "train"])
     data = attach_economics(data, econ)
     for col, pd_col in [("expected_profit", "pd_m2"), ("expected_profit_b0", "pd_b0")]:
         data[col] = expected_profit(data[pd_col], data["r_good"], data["loss_rate"],
                                     data["loan_amnt"], p["fixed_cost_per_loan"])
+    return data, econ
+
+
+def recommended_approvals(test: pd.DataFrame, cfg: dict) -> np.ndarray:
+    """Which test loans the recommended policy approves (at the headline approval rate)."""
+    p = cfg["profit"]
+    return approve_top(policy_order(test, p["recommended_policy"], cfg["seed"]), p["swap_set_approval_rate"])
+
+
+def run_profit_analysis(df: pd.DataFrame, scores: pd.DataFrame, cfg: dict) -> dict:
+    p, seed = cfg["profit"], cfg["seed"]
+    data, econ = prepare_policy_frame(df, scores, cfg)
 
     results = {"assumptions": {"servicing_fee": p["servicing_fee"], "fixed_cost_per_loan": p["fixed_cost_per_loan"],
                                "economics_estimated_on": "train (2010-2012)",

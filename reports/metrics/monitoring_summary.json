@@ -1,0 +1,144 @@
+{
+  "score_psi_valid": 0.035746,
+  "score_psi_max_test_quarter": 0.120856,
+  "score_psi_status_by_period": {
+    "valid 2013": "stable",
+    "2014Q1": "stable",
+    "2014Q2": "stable",
+    "2014Q3": "stable",
+    "2014Q4": "monitor",
+    "2015Q1": "monitor",
+    "2015Q2": "monitor",
+    "2015Q3": "stable",
+    "2015Q4": "stable"
+  },
+  "csi_max_over_test_quarters": {
+    "acc_open_past_24mths": 3.923945,
+    "bc_util": 1.913743,
+    "fico_mid": 0.25087,
+    "purpose": 0.226416,
+    "credit_hist_months": 0.148491,
+    "loan_amnt": 0.098684,
+    "revol_util": 0.085791,
+    "total_acc": 0.080671,
+    "emp_length_years": 0.080164,
+    "inq_last_6mths": 0.07227,
+    "revol_bal": 0.061716,
+    "revol_bal_to_income": 0.043525,
+    "log_annual_inc": 0.040445,
+    "loan_to_income": 0.035422,
+    "open_to_total_acc": 0.020201
+  },
+  "features_needing_action": [
+    "acc_open_past_24mths",
+    "bc_util",
+    "fico_mid"
+  ],
+  "n_segments_checked": 51,
+  "n_segments_flagged": 13,
+  "n_flagged_already_visible_in_2013": 0,
+  "n_flagged_with_2013_data": 12,
+  "n_flagged_same_direction_in_2013": 12,
+  "top_flagged_segments": [
+    {
+      "segment": "home_ownership",
+      "level": "RENT",
+      "n_loans": 191147,
+      "actual_default_rate": 0.171669,
+      "predicted_default_rate": 0.146572,
+      "gap_pp": 2.509682,
+      "est_dollar_impact": 21893284.208268,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "verification_status",
+      "level": "Verified",
+      "n_loans": 122991,
+      "actual_default_rate": 0.177915,
+      "predicted_default_rate": 0.153016,
+      "gap_pp": 2.489961,
+      "est_dollar_impact": 17761824.713441,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "credit_history",
+      "level": "5\u201310 yrs",
+      "n_loans": 68020,
+      "actual_default_rate": 0.16895,
+      "predicted_default_rate": 0.141327,
+      "gap_pp": 2.762288,
+      "est_dollar_impact": 7893316.912226,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "dti_band",
+      "level": "30+",
+      "n_loans": 41753,
+      "actual_default_rate": 0.206476,
+      "predicted_default_rate": 0.168318,
+      "gap_pp": 3.815852,
+      "est_dollar_impact": 7189721.572267,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "dti_band",
+      "level": "25\u201330",
+      "n_loans": 56610,
+      "actual_default_rate": 0.179792,
+      "predicted_default_rate": 0.157243,
+      "gap_pp": 2.254879,
+      "est_dollar_impact": 6576530.874611,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "income_quintile",
+      "level": "Q1 (< $37k)",
+      "n_loans": 73750,
+      "actual_default_rate": 0.199607,
+      "predicted_default_rate": 0.177432,
+      "gap_pp": 2.217435,
+      "est_dollar_impact": 4729583.222447,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "emp_length",
+      "level": "missing",
+      "n_loans": 28565,
+      "actual_default_rate": 0.211027,
+      "predicted_default_rate": 0.181964,
+      "gap_pp": 2.906393,
+      "est_dollar_impact": 3448798.511598,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "credit_history",
+      "level": "< 5 yrs",
+      "n_loans": 12480,
+      "actual_default_rate": 0.192228,
+      "predicted_default_rate": 0.164516,
+      "gap_pp": 2.771163,
+      "est_dollar_impact": 1209026.050231,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "purpose",
+      "level": "major_purchase",
+      "n_loans": 8228,
+      "actual_default_rate": 0.141225,
+      "predicted_default_rate": 0.10724,
+      "gap_pp": 3.39848,
+      "est_dollar_impact": 1153688.143523,
+      "already_flagged_in_2013": false
+    },
+    {
+      "segment": "fico_band",
+      "level": "780+",
+      "n_loans": 10375,
+      "actual_default_rate": 0.041735,
+      "predicted_default_rate": 0.030051,
+      "gap_pp": 1.1684,
+      "est_dollar_impact": 734661.695951,
+      "already_flagged_in_2013": false
+    }
+  ]
+}

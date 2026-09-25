@@ -66,7 +66,11 @@ profit:
   fixed_costs: [0, 50, 100]
   loss_rate_multipliers: [0.8, 1.0, 1.2]
   approval_rates: [0.5, 0.6, 0.7, 0.8, 0.9]
-  swap_set_approval_rate: 0.7
+  swap_set_approval_rate: 0.7       # headline approval rate for swap sets, bootstrap and the memo
+  # recommended policy (approved-book forecast, reason codes, memo): rank by M2 PD. Same capital and
+  # bad rate as the grade policy, robust in every stress test, and every decline is risk-based, so
+  # adverse-action reasons are truthful (the expected-profit ranking declines small loans for size)
+  recommended_policy: m2_pd
 
 monitoring:
   psi_bins: 10
@@ -81,4 +85,4 @@ explain:
   n_example_declines: 5
 
 app:
-  max_rows: 200000                  # keeps app/data well under 50 MB
+  max_rows: 450000                  # whole test book (445k loans); app/data must stay under 50 MB

@@ -1,0 +1,31 @@
+feature,mean_abs_shap,name
+fico_mid,0.3405743052750267,FICO score
+acc_open_past_24mths,0.20103033109107862,Accounts opened in last 24 months
+log_annual_inc,0.18121862271038727,Annual income
+loan_to_income,0.15480898550690209,Loan amount relative to income
+inq_last_6mths,0.11577174003477413,Credit inquiries in last 6 months
+revol_util,0.11522158662009559,Revolving credit utilization
+purpose,0.09641523119571484,Loan purpose
+revol_bal_to_income,0.07950783330474605,Revolving balance relative to income
+bc_util,0.07081147018195391,Bankcard utilization
+loan_amnt,0.05304284660523959,Loan amount
+revol_bal,0.04899454176082835,Revolving balance
+open_to_total_acc,0.04742624755110787,Share of credit lines open
+credit_hist_months,0.04278973943176389,Length of credit history
+emp_length_years,0.04166998203899192,Years employed
+dti,0.041183588885397616,Debt-to-income ratio
+mths_since_last_delinq,0.038511345341833404,Months since last delinquency
+percent_bc_gt_75,0.037538929424394595,Share of bankcards above 75% utilization
+home_ownership,0.03220816185750856,Home ownership
+mort_acc,0.030342139660570512,Mortgage accounts
+total_acc,0.029692935934691054,Total credit lines
+verification_status,0.02860117958682468,Income verification
+open_acc,0.021088811787078887,Open credit lines
+never_delinquent,0.016382570209909658,No delinquency on file
+mths_since_last_record,0.012141118717595663,Months since last public record
+emp_length_missing,0.009932656817060036,Employment length not given
+pub_rec,0.007296065493590485,Public records
+delinq_2yrs,0.0061410069763820655,Delinquencies in last 2 years
+no_public_record,0.0017405260720463871,No public record on file
+pub_rec_bankruptcies,0.000882704934956467,Bankruptcies on file
+collections_12_mths_ex_med,0.0,Collections in last 12 months
