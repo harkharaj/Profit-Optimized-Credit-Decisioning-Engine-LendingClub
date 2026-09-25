@@ -14,7 +14,7 @@ matplotlib.use("Agg")   # render charts to files, no window
 import numpy as np
 import pandas as pd
 
-from . import app_data, data, explain, forecasting, models, monitoring, plots, profit
+from . import app_data, data, explain, forecasting, models, monitoring, plots, profit, report
 from .config import load_config
 from .features import FeatureBuilder, feature_checks
 from .splits import summarize_splits
@@ -99,6 +99,11 @@ def phase_9_app_data(cfg, df, scores):
     print(f"  app/data: {info['n_book_rows']:,} test loans, {info['app_data_mb']:.1f} MB")
 
 
+def phase_10_reports(cfg):
+    for path in report.run_reports(cfg):
+        print(f"  wrote {path.relative_to(path.parents[1]) if path.parent.name == 'reports' else path.name}")
+
+
 def main():
     cfg = load_config()
     np.random.seed(cfg["seed"])
@@ -119,6 +124,7 @@ def main():
     run("Phase 7: loss forecasting", phase_7_forecast, cfg, df, scores)
     run("Phase 8: monitoring, weak spots, explainability", phase_8_monitoring, cfg, df, scores)
     run("Phase 9: app data", phase_9_app_data, cfg, df, scores)
+    run("Phase 10: reports", phase_10_reports, cfg)
 
     print(f"\nDone in {(time.time() - start) / 60:.1f} min. Metrics in reports/metrics/, charts in reports/figures/.")
 
