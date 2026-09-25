@@ -1,0 +1,80 @@
+# Every date, threshold and parameter used by the pipeline lives here.
+# Change a value here, re-run `python -m credit_engine.run_all`, and every
+# report/figure is regenerated from scratch.
+
+seed: 42
+
+paths:
+  raw_dir: data/raw                 # the Kaggle file goes here (git-ignored)
+  raw_glob: "accepted_*.csv*"       # file name varies by dataset version
+  duckdb: data/processed/lending_club.duckdb
+  processed_dir: data/processed
+  metrics_dir: reports/metrics      # single source of truth for every number
+  figures_dir: reports/figures
+  models_dir: models
+  app_data_dir: app/data
+
+population:
+  term_months: 36
+  issue_start: 2010-01-01
+  issue_end: 2015-12-01             # 36-month loans issued by Dec-2015 mature before the Dec-2018 data cutoff
+  application_type: INDIVIDUAL
+
+splits:                             # out-of-time: split on issue date, never randomly
+  train: [2010-01-01, 2012-12-01]
+  valid: [2013-01-01, 2013-12-01]
+  test:  [2014-01-01, 2015-12-01]   # touched once, for final evaluation only
+
+features:
+  max_missing_rate_train: 0.50      # optional bureau fields above this are dropped
+  cap_quantile: 0.995               # annual_inc and dti are capped at this train quantile
+  rare_category_share: 0.01         # purpose levels below 1% of train -> OTHER
+  never_fill_value: 999             # "months since last delinquency" when there was none
+
+scorecard:
+  max_bins: 10
+  min_bin_share: 0.05
+  min_iv: 0.02
+  max_woe_corr: 0.70
+  c_grid: [0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0]
+  base_score: 600                   # 600 points ...
+  base_odds: 50                     # ... at 50:1 good:bad odds
+  pdo: 20                           # points to double the odds
+  monotone_features: [fico_mid, dti, revol_util, inq_last_6mths, annual_inc]
+
+lightgbm:
+  optuna_trials: 40
+  early_stopping_rounds: 100
+  max_boost_rounds: 3000
+  # direction of the monotone-constraint experiment (+1 = PD rises with the feature)
+  monotone_constraints:
+    fico_mid: -1
+    dti: 1
+    inq_last_6mths: 1
+    revol_util: 1
+
+evaluation:
+  bootstrap_resamples: 1000
+
+profit:
+  servicing_fee: 0.01               # assumption: LC's 1% investor fee on payments received
+  fixed_cost_per_loan: 0            # sensitivity below covers 0 / 50 / 100
+  fixed_costs: [0, 50, 100]
+  loss_rate_multipliers: [0.8, 1.0, 1.2]
+  approval_rates: [0.5, 0.6, 0.7, 0.8, 0.9]
+  swap_set_approval_rate: 0.7
+
+monitoring:
+  psi_bins: 10
+  csi_top_features: 15
+  min_segment_n: 500
+  gap_flag_pp: 2.0
+  ratio_band: [0.8, 1.25]
+
+explain:
+  shap_sample_size: 20000
+  n_reason_codes: 4
+  n_example_declines: 5
+
+app:
+  max_rows: 200000                  # keeps app/data well under 50 MB
